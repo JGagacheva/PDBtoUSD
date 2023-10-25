@@ -1,0 +1,17 @@
+
+*.usdz
+Getting Started with Universal Scene Description (USD).pdf
+*.usd
+*.txt
+*.png
+*.usdc
+.DS_Store
+PDBtoUSD/PDBtoUSD.xcodeproj/xcuserdata/jana.xcuserdatad/xcschemes/xcschememanagement.plist
+PDBtoUSD/PDBtoUSD.xcodeproj/project.xcworkspace/xcuserdata/jana.xcuserdatad/UserInterfaceState.xcuserstate
+PDBtoUSD/PDBtoUSD.xcodeproj/project.xcworkspace/xcuserdata/jana.xcuserdatad/UserInterfaceState.xcuserstate
+PDBtoUSD/PDBtoUSD.xcodeproj/xcuserdata/jana.xcuserdatad/xcschemes/xcschememanagement.plist
+PDBtoUSD/PDBtoUSD.xcodeproj/xcuserdata/jana.xcuserdatad/xcschemes/xcschememanagement.plist
+*.plist
+PDBtoUSD/PDBtoUSD.xcodeproj/xcuserdata/jana.xcuserdatad/xcschemes/xcschememanagement.plist
+protein.pdb
+protein/sphere.usda
