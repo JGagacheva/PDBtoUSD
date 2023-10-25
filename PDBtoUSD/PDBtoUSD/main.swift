@@ -8,15 +8,6 @@ import Foundation
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-enum AtomType: String {
-    case nitrogen = "N"
-}
-*/
-
-// struct is a value type
-// class is a reference type
-// … read the book …
 struct Atom {
     var type: String
     var x: Float
@@ -27,12 +18,20 @@ struct Atom {
 var atoms: Array<Atom> = []
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-let fileName = "protein.pdb"
+let fileName: String = "protein.pdb"
 var file = ""
 
 let dir = URL(fileURLWithPath: "/Users/jana/LocalDesktop/PDBtoUSD")
 let fileURL = dir.appending(path: fileName)
 
+
+func write(text: String, to fileNamed: String, folder: String = "SavedFiles") {
+    guard let path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first else { return }
+    guard let writePath = NSURL(fileURLWithPath: path).appendingPathComponent(folder) else { return }
+    try? FileManager.default.createDirectory(atPath: writePath.path, withIntermediateDirectories: true)
+    let file = writePath.appendingPathComponent(fileNamed + ".txt")
+    try? text.write(to: file, atomically: false, encoding: String.Encoding.utf8)
+}
 
 var strings: [String] = []
 var newLine: [Float] = []
@@ -63,7 +62,9 @@ do {
 } catch {
     print("The file reading failed with error: \(error)")
 }
-print("""
+
+var Body: String =
+"""
 #usda 1.0
 (
 upAxis = "Z"
@@ -94,10 +95,11 @@ class Xform "Cl"
 class Xform "N"
 {
     def Sphere "Mesh" (
-        active = true
+    active = true
+    prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        double radius = 5
+       double radius = 5
        color3f[] primvars:displayColor = [(0.0, 0.0, 1.0)]
     }
 }
@@ -135,21 +137,21 @@ class Xform "P"
     }
 }
 
-class Xform "SphereShiny"
+class Xform "Shiny"
 {
-def Sphere "Sphere" (
+def Sphere "Mesh" (
     active = true
     prepend apiSchemas = ["MaterialBindingAPI"]
 )
 {
-    rel material:binding = </SphereShiny/Sphere/DefaultMaterial>
+    rel material:binding = </C/Mesh/DefaultMaterial>
     double radius = 5
 
     def Material "DefaultMaterial"
     {
         token outputs:mtlx:surface
         token outputs:realitykit:vertex
-        prepend token outputs:surface.connect = </SphereShiny/Sphere/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+        prepend token outputs:surface.connect = </C/Mesh/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
         float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (0, 109.5)
         float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
 
@@ -170,7 +172,12 @@ def Sphere "Sphere" (
     }
 }
 }
-""")
+
+def Xform "Atoms" (
+)
+{
+""";
+
 var ith: Int = 0
 var atomType: String = ""
 var scale: Float = 0.0
@@ -206,8 +213,8 @@ for atom in atoms {
         atomType = "</P>"
         scale = 0.45
     }
-    print("""
-    def "Ball_\(ith)" (
+    Body += """
+    \ndef "Ball_\(ith)" (
         instanceable = true
         inherits = \(atomType)
     )
@@ -217,19 +224,21 @@ for atom in atoms {
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:scale"]
     }
 """
-    )
     ith += 1
 }
-print("}")
+Body += "\n}"
 
+// save file to Documents directory
+func saveFile(with name: String) throws {
+     let fileManager = FileManager.default
+     let documentDirectory = try fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+     let fileURL = documentDirectory.appendingPathComponent(name)
+     try? Body.write(to: fileURL, atomically: false, encoding: .utf8)
+ }
 
-/*
- def "Ball_1" (
-               instanceable = true
-               prepend references = @./assets/Ball/Ball.usd@
-           )
-           {
-               double3 xformOp:translate = (-129.55568313598633, 63.823883056640625, -0.39934539794921875)
-               uniform token[] xformOpOrder = ["xformOp:translate"]
-           }
- */
+let exportArray = fileName.components(separatedBy: ".")
+let exportName: String = exportArray[0]
+let exportFileName = exportName + ".usd"
+try saveFile(with: exportFileName)
+ 
+
